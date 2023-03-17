@@ -7,3 +7,5 @@ tessdata_dir_config = r'--tessdata-dir "C:\\Python_Scripts\\Imgtexter\\venv\\tes
 file_types = [
             ('Text Document', '*.txt'),
             ]
+
+lang_list = ["ru", "en",]
