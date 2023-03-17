@@ -4,24 +4,35 @@ from tkinter import messagebox
 from datetime import datetime
 
 from PIL import Image
-import pytesseract
+
+import config
 
 
-######
-pytesseract.pytesseract.tesseract_cmd = r'C:\\Python_Scripts\\img_to_text\\venv\\tesseract.exe' #Путь к Движку Tesseract
-tessdata_dir_config = r'--tessdata-dir "C:\\Python_Scripts\\img_to_text\\venv\\tessdata"' # Путь к языкам
-######
+def copyToClipboard(text, root):
+	root.clipboard_clear()
+	root.clipboard_append(text)
 
-def imgToString():
-		img_path = filedialog.askopenfile().name
+def imgToString(root):
+		try:
+			img_path = filedialog.askopenfile().name
+		except AttributeError:
+			raise "The file was not selected" 
 		img = Image.open(img_path)
-		text = pytesseract.image_to_string(img, lang="rus+eng", config=tessdata_dir_config)
-		isSaveToFile = messagebox.askquestion("Save to file", "Do you want to save the received text to a .txt file?")
-		if isSaveToFile == "yes":
-			textToFile(text)
-		print("\n", text, "\n")
+		text = config.pytesseract.image_to_string(img, lang="rus+eng", config=config.tessdata_dir_config)
+		isSaveToFile = messagebox.askyesnocancel("Save to file", "Do you want to save the received text to a .txt file?\nYes - Save the result to a file\nNo - Copy to Clipboard\nCancel - Cancel - Cancel the convert")
+		print(isSaveToFile)
+		print(f"******************\n******************\n{text}\n******************\n******************")
+		if isSaveToFile == True:
+			save_path = filedialog.asksaveasfilename(filetypes=config.file_types, defaultextension=".txt")
+			textToFile(text, save_path)
+		elif isSaveToFile == False:
+			copyToClipboard(text, root)
+		else:
+			return
+		return text
 
-def textToFile(text):
+
+def textToFile(text, save_path):
 	current_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-	with open(f"Result_{current_time}.txt", "w+", encoding="utf-8") as f:
+	with open(save_path, "w+", encoding="utf-8") as f:
 		f.write(text)
